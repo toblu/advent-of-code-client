@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const pkg = require('../../package.json');
+const logger = require('./logger');
 
 const HOST_URI = 'https://adventofcode.com';
 const USER_AGENT = `node/${process.version} ${pkg.name}/${pkg.version}`;
@@ -10,26 +11,24 @@ const CORRECT_ANSWER_TEXT = "that's the right answer";
 const INCORRECT_ANSWER_TEXT = "that's not the right answer";
 const TOO_RECENT_ANSWER_TEXT =
   'you gave an answer too recently; you have to wait after submitting an answer before trying again.';
+const ALREADY_COMPLETED_ANSWER_TEXT =
+  "you don't seem to be solving the right level";
 
 const fetchFromCacheOrAoC = async (cacheKey, uri, options, config, cache) => {
   if (config.useCache) {
     const cachedResponse = cache.get(cacheKey);
     // use the cached response response if it exists
     if (cachedResponse) {
-      if (config.debug) {
-        console.debug(
-          'Found a previously cached response, returning response from cache'
-        );
-      }
+      logger.debug(
+        'Found a previously cached response, returning response from cache'
+      );
       return Promise.resolve(cachedResponse);
     }
   }
   // otherwise call AoC
-  if (config.debug) {
-    console.debug(
-      'No previously cached response found, fetching from Advent Of Code'
-    );
-  }
+  logger.debug(
+    'No previously cached response found, fetching from Advent Of Code'
+  );
   const response = await fetch(uri, options);
   return response.text();
 };
@@ -118,23 +117,22 @@ const postAnswer = async ({ part, answer }, config, cache) => {
   );
 
   const text = textResponse.toLowerCase();
-  if (text.includes(CORRECT_ANSWER_TEXT)) {
-    if (config.textResponseuseCache && !cachedResponse) {
+  if (
+    text.includes(CORRECT_ANSWER_TEXT) ||
+    text.includes(ALREADY_COMPLETED_ANSWER_TEXT)
+  ) {
+    if (config.useCache && !cachedResponse) {
       // Update cache if no previously cached response
       cache.set(cacheKey, textResponse);
     }
-    return Promise.resolve(
-      `Answer is correct, you answered: ${answer}. Good job!`
-    );
+    return Promise.resolve({ correct: true });
   }
   if (text.includes(INCORRECT_ANSWER_TEXT)) {
     if (config.useCache && !cachedResponse) {
       // Update cache if no previously cached response
       cache.set(cacheKey, textResponse);
     }
-    return Promise.reject(
-      new Error(`Answer is incorrect, you answered: ${answer}.`)
-    );
+    return Promise.resolve({ correct: false });
   }
   if (text.includes(TOO_RECENT_ANSWER_TEXT)) {
     const leftToWaitText = text

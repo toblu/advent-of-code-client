@@ -1,6 +1,7 @@
 const { getYear } = require('date-fns');
 const Cache = require('cache-conf');
 const { getInput, postAnswer } = require('./util/api');
+const logger = require('./util/logger');
 
 class AocClient {
   constructor({ year, day, token, useCache = true, debug = false }) {
@@ -34,18 +35,46 @@ class AocClient {
       year,
       day,
       token,
-      useCache,
-      debug
+      useCache
     };
+    if (debug) {
+      globalThis.aocDebug = true;
+    }
     this.cache = new Cache();
   }
 
-  getInput() {
-    return getInput(this.config, this.cache);
+  async getInput(separator) {
+    if (
+      separator !== undefined &&
+      typeof separator !== 'string' &&
+      separator instanceof RegExp !== true
+    ) {
+      return Promise.reject(
+        new Error('separator must be of either type string or RegExp')
+      );
+    }
+    const input = await getInput(this.config, this.cache);
+    return separator ? input.split(separator) : input;
   }
 
-  submit(part, answer) {
-    return postAnswer({ part, answer }, this.config, this.cache);
+  async submit(part, answer) {
+    if (part !== 1 && part !== 2) {
+      return Promise.reject(new Error('Part must be either 1 or 2'));
+    }
+
+    logger.log(`Submitting part ${part}...`);
+
+    const { correct } = await postAnswer(
+      { part, answer },
+      this.config,
+      this.cache
+    );
+
+    const resultLogger = correct ? logger.success : logger.fail;
+
+    resultLogger(`Result: ${answer}`);
+
+    return { correct };
   }
 
   getCachePath() {
