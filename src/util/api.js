@@ -1,38 +1,41 @@
 const fetch = require('node-fetch');
 const pkg = require('../../package.json');
-const cache = require('./cache');
 
 const HOST_URI = 'https://adventofcode.com';
 const USER_AGENT = `node/${process.version} ${pkg.name}/${pkg.version}`;
 
 const TOO_EARLY_REQUEST_TEXT =
   "please don't repeatedly request this endpoint before it unlocks";
-
 const CORRECT_ANSWER_TEXT = "that's the right answer";
 const INCORRECT_ANSWER_TEXT = "that's not the right answer";
 const TOO_RECENT_ANSWER_TEXT =
   'you gave an answer too recently; you have to wait after submitting an answer before trying again.';
 
-const fetchFromCacheOrAoC = async (cacheKey, uri, options, useCache) => {
-  if (useCache) {
+const fetchFromCacheOrAoC = async (cacheKey, uri, options, config, cache) => {
+  if (config.useCache) {
     const cachedResponse = cache.get(cacheKey);
     // use the cached response response if it exists
     if (cachedResponse) {
-      console.debug(
-        'Found a previously cached response, returning response from cache'
-      );
+      if (config.debug) {
+        console.debug(
+          'Found a previously cached response, returning response from cache'
+        );
+      }
       return Promise.resolve(cachedResponse);
     }
   }
   // otherwise call AoC
-  console.debug(
-    'No previously cached response found, fetching from Advent Of Code'
-  );
+  if (config.debug) {
+    console.debug(
+      'No previously cached response found, fetching from Advent Of Code'
+    );
+  }
   const response = await fetch(uri, options);
   return response.text();
 };
 
-const getInput = async ({ year, day, token, useCache }) => {
+async function getInput(config, cache) {
+  const { year, day, token } = config;
   const uri = `${HOST_URI}/${year}/day/${day}/input`;
   const options = {
     method: 'get',
@@ -52,7 +55,8 @@ const getInput = async ({ year, day, token, useCache }) => {
     cacheKey,
     uri,
     options,
-    useCache
+    config,
+    cache
   );
 
   if (textResponse.toLowerCase().includes(TOO_EARLY_REQUEST_TEXT)) {
@@ -74,14 +78,15 @@ const getInput = async ({ year, day, token, useCache }) => {
     );
   }
 
-  if (useCache && !cache.get(cacheKey)) {
+  if (config.useCache && !cache.get(cacheKey)) {
     // update cache if it had not been set previously
     cache.set(cacheKey, textResponse);
   }
   return textResponse;
-};
+}
 
-const postAnswer = async ({ year, day, token, useCache }, { part, answer }) => {
+const postAnswer = async ({ part, answer }, config, cache) => {
+  const { year, day, token } = config;
   const uri = `${HOST_URI}/${year}/day/${day}/answer`;
   const options = {
     method: 'post',
@@ -108,12 +113,13 @@ const postAnswer = async ({ year, day, token, useCache }, { part, answer }) => {
     cacheKey,
     uri,
     options,
-    useCache
+    config,
+    cache
   );
 
   const text = textResponse.toLowerCase();
   if (text.includes(CORRECT_ANSWER_TEXT)) {
-    if (useCache && !cachedResponse) {
+    if (config.textResponseuseCache && !cachedResponse) {
       // Update cache if no previously cached response
       cache.set(cacheKey, textResponse);
     }
@@ -122,7 +128,7 @@ const postAnswer = async ({ year, day, token, useCache }, { part, answer }) => {
     );
   }
   if (text.includes(INCORRECT_ANSWER_TEXT)) {
-    if (useCache && !cachedResponse) {
+    if (config.useCache && !cachedResponse) {
       // Update cache if no previously cached response
       cache.set(cacheKey, textResponse);
     }

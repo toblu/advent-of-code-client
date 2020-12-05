@@ -1,8 +1,9 @@
 const { getYear } = require('date-fns');
+const Cache = require('cache-conf');
 const { getInput, postAnswer } = require('./util/api');
 
 class AocClient {
-  constructor({ year, day, token, useCache = true }) {
+  constructor({ year, day, token, useCache = true, debug = false }) {
     if (
       !year ||
       Number.isNaN(year) ||
@@ -25,20 +26,30 @@ class AocClient {
     if (typeof useCache !== 'boolean') {
       throw new Error('Invalid useCache option, useCache can only be boolean');
     }
+
+    if (typeof debug !== 'boolean') {
+      throw new Error('Invalid debug option, debug can only be boolean');
+    }
     this.config = {
       year,
       day,
       token,
-      useCache
+      useCache,
+      debug
     };
+    this.cache = new Cache();
   }
 
   getInput() {
-    return getInput(this.config);
+    return getInput(this.config, this.cache);
   }
 
-  submitAnswer(answer) {
-    return postAnswer(this.config, answer);
+  submit(part, answer) {
+    return postAnswer({ part, answer }, this.config, this.cache);
+  }
+
+  getCachePath() {
+    return this.cache.path();
   }
 }
 

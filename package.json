@@ -25,7 +25,7 @@
     "prettier": "2.2.1"
   },
   "dependencies": {
-    "conf": "^7.1.2",
+    "cache-conf": "^0.6.0",
     "date-fns": "^2.16.1",
     "node-fetch": "^2.6.1"
   }
