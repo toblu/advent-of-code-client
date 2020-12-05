@@ -23,5 +23,10 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
     "prettier": "2.2.1"
+  },
+  "dependencies": {
+    "conf": "^7.1.2",
+    "date-fns": "^2.16.1",
+    "node-fetch": "^2.6.1"
   }
 }
