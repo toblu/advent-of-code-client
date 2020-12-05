@@ -1,5 +1,6 @@
 const { getYear } = require('date-fns');
 const Cache = require('cache-conf');
+const emojic = require('emojic');
 const { getInput, postAnswer } = require('./util/api');
 const logger = require('./util/logger');
 
@@ -53,6 +54,7 @@ class AocClient {
         new Error('separator must be of either type string or RegExp')
       );
     }
+    logger.log('Fetching input...');
     const input = await getInput(this.config, this.cache);
     return separator ? input.split(separator) : input;
   }
@@ -73,6 +75,11 @@ class AocClient {
     const resultLogger = correct ? logger.success : logger.fail;
 
     resultLogger(`Result: ${answer}`);
+
+    if (part === 2 && correct) {
+      console.log();
+      logger.log("All done! Great job, here's a cookie", emojic.cookie);
+    }
 
     return { correct };
   }
