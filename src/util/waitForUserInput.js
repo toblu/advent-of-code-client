@@ -6,7 +6,7 @@ const waitForUserInput = async () =>
   new Promise((resolve) => {
     rl.prompt(true);
     rl.on('line', (input) => {
-      rl.close();
+      rl.pause();
       resolve(input);
     });
   });
