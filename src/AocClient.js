@@ -42,22 +42,14 @@ class AocClient {
       globalThis.aocDebug = true;
     }
     this.cache = new Cache();
+    this.transform = null;
   }
 
-  async getInput(separator) {
-    if (
-      separator !== undefined &&
-      typeof separator !== 'string' &&
-      separator instanceof RegExp !== true
-    ) {
-      return Promise.reject(
-        new Error('separator must be of either type string or RegExp')
-      );
-    }
+  async getInput() {
     logger.log('Fetching input...');
     const input = await getInput(this.config, this.cache);
     const trimmedInput = input.trim();
-    return separator ? trimmedInput.split(separator) : trimmedInput;
+    return this.transform ? this.transform(trimmedInput) : trimmedInput;
   }
 
   async submit(part, answer) {
@@ -83,6 +75,12 @@ class AocClient {
     }
 
     return { correct };
+  }
+
+  setInputTransform(transform) {
+    if (typeof transform !== 'function')
+      throw new Error('transform must be a function');
+    this.transform = transform;
   }
 
   getCachePath() {
