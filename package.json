@@ -1,7 +1,7 @@
 {
   "name": "advent-of-code-client",
   "version": "0.0.1",
-  "description": "A NodeJS client for fetching inputs and submitting answers to Advent Of Code directly from your JavaScript code",
+  "description": "A NodeJS client for fetching inputs, running puzzle challenges and submitting answers to Advent Of Code directly from your JavaScript code.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -11,7 +11,7 @@
     "url": "git+https://github.com/toblu/advent-of-code-client.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Tobias Lundell",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/toblu/advent-of-code-client/issues"
