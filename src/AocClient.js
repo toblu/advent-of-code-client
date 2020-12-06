@@ -56,7 +56,8 @@ class AocClient {
     }
     logger.log('Fetching input...');
     const input = await getInput(this.config, this.cache);
-    return separator ? input.split(separator) : input;
+    const trimmedInput = input.trim();
+    return separator ? trimmedInput.split(separator) : trimmedInput;
   }
 
   async submit(part, answer) {
