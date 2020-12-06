@@ -78,7 +78,7 @@ class AocClient {
   }
 
   /**
-   * Submit puzzle answer for a specific part of the puzzle.
+   * Submit puzzle answer for a specific part of the puzzle. If the part of the puzzle has already been completed, it will not be submitted again.
    * @param {number} part - the part of the puzzle that the answer is for (should be 1 or 2).
    * @param {any} answer - the answer to the puzzle.
    * @return {boolean} true if the answer was correct, false otherwise.
@@ -89,6 +89,17 @@ class AocClient {
     }
 
     logger.log(`Submitting part ${part}...`);
+
+    if (part === 1 && this._hasCompletedPart(1)) {
+      logger.success('Part 1 already completed');
+      return Promise.resolve(true);
+    }
+    if (part === 2 && this._hasCompletedPart(2)) {
+      logger.success(
+        'Part 2 already completed successfully, continue with next puzzle'
+      );
+      return Promise.resolve(true);
+    }
 
     const { correct } = await postAnswer(
       { part, answer },
@@ -101,7 +112,6 @@ class AocClient {
     }
 
     const resultLogger = correct ? logger.success : logger.fail;
-
     resultLogger(`Result: ${answer}`);
 
     if (part === 2 && correct) {
