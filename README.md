@@ -51,11 +51,26 @@ const part2 = (input) => {
 await client.run([part1, part2], true);
 ```
 
-Transforming inputs before they are returned from `.getInput()`. This can be especially useful if you are running your puzzle parts automatically. When using the `.setInputTransform(transform)` method, the input to each part function will be the transformed / parsed input data.
+Transforming inputs before they are returned from `.getInput()`. This can be especially useful if you are running your puzzle parts automatically. When using the `.setInputTransform(transform)` method, the input to each part function will be the transformed / parsed data.
+
+For convenience there are a couple of pre-defined transform functions for commonly used transformations (i.e. splitting data by lines). The pre-defined transform functions are exported as `transforms`:
 
 ```javascript
-// in case you want the input to be transformed before it's returned from client.getInput()
-client.setInputTransform((rawInput) => rawInput.split('\n'));
+const { transforms } = require('advent-of-code-client');
+
+client.setInputTransform(transforms.lines);
+```
+
+You can also specify your own transform function:
+
+```javascript
+
+const myTransform = rawData => {
+  ... // transform data
+  return transformedData;
+}
+
+client.setInputTransform(myTransform);
 ```
 
 ## Authentication
