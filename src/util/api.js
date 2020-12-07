@@ -11,8 +11,7 @@ const CORRECT_ANSWER_TEXT = "that's the right answer";
 const INCORRECT_ANSWER_TEXT = "that's not the right answer";
 const TOO_RECENT_ANSWER_TEXT =
   'you gave an answer too recently; you have to wait after submitting an answer before trying again.';
-const ALREADY_COMPLETED_ANSWER_TEXT =
-  "you don't seem to be solving the right level";
+const INCORRECT_LEVEL_TEXT = "you don't seem to be solving the right level";
 
 const fetchFromCacheOrAoC = async (cacheKey, uri, options, config, cache) => {
   if (config.useCache) {
@@ -117,10 +116,7 @@ const postAnswer = async ({ part, answer }, config, cache) => {
   );
 
   const text = textResponse.toLowerCase();
-  if (
-    text.includes(CORRECT_ANSWER_TEXT) ||
-    text.includes(ALREADY_COMPLETED_ANSWER_TEXT)
-  ) {
+  if (text.includes(CORRECT_ANSWER_TEXT)) {
     if (config.useCache && !cachedResponse) {
       // Update cache if no previously cached response
       cache.set(cacheKey, textResponse);
@@ -147,6 +143,13 @@ const postAnswer = async ({ part, answer }, config, cache) => {
     return Promise.reject(
       new Error(
         'This puzzle has not opened yet, please wait until the puzzle unlocks!'
+      )
+    );
+  }
+  if (text.includes(INCORRECT_LEVEL_TEXT)) {
+    return Promise.reject(
+      new Error(
+        "You don't seem to be solving the correct level. Did you already complete it?"
       )
     );
   }
