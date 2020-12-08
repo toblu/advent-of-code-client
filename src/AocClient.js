@@ -207,10 +207,6 @@ class AocClient {
       throw new Error('transform must be a function');
     this.transform = transform;
   }
-
-  getCachePath() {
-    return this.cache.path();
-  }
 }
 
 module.exports = AocClient;
