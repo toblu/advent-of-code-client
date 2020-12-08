@@ -13,7 +13,7 @@ npm i --save advent-of-code-client
 Initializing the client:
 
 ```javascript
-const AocClient = require('advent-of-code-client');
+const { AocClient } = require('advent-of-code-client');
 
 const client = new AocClient({
   year: 2020, // the year of the challenge
