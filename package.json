@@ -1,6 +1,6 @@
 {
   "name": "advent-of-code-client",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A NodeJS client for fetching inputs, running puzzle challenges and submitting answers to Advent Of Code directly from your JavaScript code.",
   "main": "index.js",
   "scripts": {
