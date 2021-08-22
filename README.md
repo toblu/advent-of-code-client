@@ -94,4 +94,4 @@ const client = new AocClient({
 
 This is not an official tool for Advent Of Code and I am not in any way affiliated or in cooperation with adventofcode.com. I am a happy user who myself participate in the Advent Of Code challenges, and I wanted to make a tool that would help with fetching inputs and submitting answers.
 
-I wrote this tool over a weekend so I can basically guarantee that it contains some bugs :) Please keep that in mind in case you decide to use it.
+I created this primarily as a tool for myself to make it easier to work on the Advent Of Code challenges, and decided to share it hoping hat it might help someone else as well. It has worked well for my workflow, however I'm not actively using / maintaining this tool and it might contain bugs. I take no responsibility for any problems that occur either due to misuse or to bugs in the tool. Please keep that in mind in case you decide to use it.
