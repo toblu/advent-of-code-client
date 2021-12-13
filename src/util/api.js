@@ -7,6 +7,9 @@ const USER_AGENT = `node/${process.version} ${pkg.name}/${pkg.version}`;
 
 const TOO_EARLY_REQUEST_TEXT =
   "please don't repeatedly request this endpoint before it unlocks";
+const UNAUTHENTICATED_INPUT_TEXT = 'please log in to get your puzzle input';
+const INTERNAL_SERVER_ERROR_TEXT = 'internal server error';
+const HTML_RESPONSE_TEXT = '!DOCTYPE HTML';
 const CORRECT_ANSWER_TEXT = "that's the right answer";
 const INCORRECT_ANSWER_TEXT = "that's not the right answer";
 const TOO_RECENT_ANSWER_TEXT =
@@ -57,6 +60,14 @@ async function getInput(config, cache) {
     cache
   );
 
+  if (textResponse.toLowerCase().includes(UNAUTHENTICATED_INPUT_TEXT)) {
+    return Promise.reject(
+      new Error(
+        'You must log in to get your puzzle input, please provide a valid token'
+      )
+    );
+  }
+
   if (textResponse.toLowerCase().includes(TOO_EARLY_REQUEST_TEXT)) {
     return Promise.reject(
       new Error(
@@ -65,10 +76,15 @@ async function getInput(config, cache) {
     );
   }
 
-  const isValidInputResponse =
-    textResponse.length && !textResponse.match(/<[^>]+>/);
+  if (textResponse.toLowerCase().includes(INTERNAL_SERVER_ERROR_TEXT)) {
+    return Promise.reject(
+      new Error(
+        'An unexpected error occurred while fetching the input, internal server error.'
+      )
+    );
+  }
 
-  if (!isValidInputResponse) {
+  if (textResponse.includes(HTML_RESPONSE_TEXT)) {
     return Promise.reject(
       new Error(
         'An error occurred while fetching the input. Are you authenticated correctly?'
