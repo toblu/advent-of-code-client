@@ -14,4 +14,4 @@ const logger = {
   fail: (...args: []) => logger.log(...args, emojic.x)
 };
 
-module.exports = logger;
+export default logger;

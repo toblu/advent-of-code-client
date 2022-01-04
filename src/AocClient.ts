@@ -1,12 +1,12 @@
-const { getYear } = require('date-fns');
-const CacheConf = require('cache-conf');
-const emojic = require('emojic');
-const { getInput, postAnswer } = require('./util/api');
-const logger = require('./util/logger');
-const waitForUserInput = require('./util/waitForUserInput');
-import {
+import { getYear } from 'date-fns';
+import CacheConf from 'cache-conf';
+import emojic from 'emojic';
+import { getInput, postAnswer } from './util/api';
+import logger from './util/logger';
+import waitForUserInput from './util/waitForUserInput';
+import type {
   CacheKeyParams,
-  CacheConf,
+  Cache,
   Config,
   PartFn,
   Result,
@@ -21,9 +21,9 @@ const getCacheKey = ({ year, day, token, part }: CacheKeyParams) =>
  * Each instance of the class corresponds to a puzzle for a specific day and year based on the configuration.
  */
 class AocClient {
-  config: Config;
-  cache: CacheConf;
-  transform: TransformFn;
+  private config: Config;
+  private cache: Cache;
+  private transform: TransformFn;
   /**
    * @param {object} config
    */
@@ -67,12 +67,12 @@ class AocClient {
     this.transform = null;
   }
 
-  _hasCompletedPart(part: number) {
+  private _hasCompletedPart(part: number) {
     const cacheKey = getCacheKey({ ...this.config, part });
     return this.cache.get(cacheKey) === true;
   }
 
-  _markCompletedPart(part: number) {
+  private _markCompletedPart(part: number) {
     const cacheKey = getCacheKey({ ...this.config, part });
     this.cache.set(cacheKey, true);
   }
@@ -223,4 +223,4 @@ class AocClient {
   }
 }
 
-module.exports = AocClient;
+export default AocClient;

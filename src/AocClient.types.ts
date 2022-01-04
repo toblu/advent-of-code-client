@@ -23,7 +23,7 @@ export type Config = {
   debug?: boolean;
 };
 
-export type CacheConf = {
+export type Cache = {
   get: (key: string, options?: { ignoreMaxAge?: boolean }) => any;
   set: (
     key: string,

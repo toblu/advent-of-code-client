@@ -1,7 +1,7 @@
 import fetch, { RequestInit } from 'node-fetch';
-import { CacheConf, Config, Result } from '../AocClient.types';
+import { Cache, Config, Result } from '../AocClient.types';
+import logger from './logger';
 const pkg = require('../../package.json');
-const logger = require('./logger');
 
 const HOST_URI = 'https://adventofcode.com';
 const USER_AGENT = `node/${process.version} ${pkg.name}/${pkg.version}`;
@@ -22,7 +22,7 @@ const fetchFromCacheOrAoC = async (
   uri: string,
   options: RequestInit,
   config: Config,
-  cache: CacheConf
+  cache: Cache
 ): Promise<string> => {
   if (config.useCache) {
     const cachedResponse = cache.get(cacheKey);
@@ -42,7 +42,7 @@ const fetchFromCacheOrAoC = async (
   return response.text();
 };
 
-async function getInput(config: Config, cache: CacheConf) {
+export async function getInput(config: Config, cache: Cache) {
   const { year, day, token } = config;
   const uri = `${HOST_URI}/${year}/day/${day}/input`;
   const options = {
@@ -107,14 +107,14 @@ async function getInput(config: Config, cache: CacheConf) {
 }
 
 type Params = {
-  part: string;
-  answer: string;
+  part: Result;
+  answer: Result;
 };
 
-const postAnswer = async (
+export const postAnswer = async (
   { part, answer }: Params,
   config: Config,
-  cache: CacheConf
+  cache: Cache
 ) => {
   const { year, day, token } = config;
   const uri = `${HOST_URI}/${year}/day/${day}/answer`;
@@ -127,8 +127,8 @@ const postAnswer = async (
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: new URLSearchParams({
-      level: part,
-      answer
+      level: `${part}`,
+      answer: `${answer}`
     })
   };
   const cacheKey = JSON.stringify({
@@ -189,9 +189,4 @@ const postAnswer = async (
   return Promise.reject(
     new Error('Unknown response from AoC. Are you authenticated correctly?')
   );
-};
-
-module.exports = {
-  getInput,
-  postAnswer
 };

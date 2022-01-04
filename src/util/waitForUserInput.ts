@@ -2,7 +2,7 @@ const readline = require('readline');
 
 const rl = readline.createInterface(process.stdin, process.stdout);
 
-const waitForUserInput = async () =>
+const waitForUserInput = async (): Promise<string> =>
   new Promise((resolve) => {
     rl.prompt(true);
     rl.on('line', (input: string) => {
@@ -11,4 +11,4 @@ const waitForUserInput = async () =>
     });
   });
 
-module.exports = waitForUserInput;
+export default waitForUserInput;
