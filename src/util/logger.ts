@@ -1,4 +1,4 @@
-const emojic = require('emojic');
+import emojic from 'emojic';
 
 const prefix = '[advent-of-code-client]';
 
