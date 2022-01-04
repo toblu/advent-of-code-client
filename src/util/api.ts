@@ -1,6 +1,7 @@
-const fetch = require('node-fetch');
+import fetch, { RequestInit } from 'node-fetch';
+import { Cache, Config, Result } from '../AocClient.types';
+import logger from './logger';
 const pkg = require('../../package.json');
-const logger = require('./logger');
 
 const HOST_URI = 'https://adventofcode.com';
 const USER_AGENT = `node/${process.version} ${pkg.name}/${pkg.version}`;
@@ -16,7 +17,13 @@ const TOO_RECENT_ANSWER_TEXT =
   'you gave an answer too recently; you have to wait after submitting an answer before trying again.';
 const INCORRECT_LEVEL_TEXT = "you don't seem to be solving the right level";
 
-const fetchFromCacheOrAoC = async (cacheKey, uri, options, config, cache) => {
+const fetchFromCacheOrAoC = async (
+  cacheKey: string,
+  uri: string,
+  options: RequestInit,
+  config: Config,
+  cache: Cache
+): Promise<string> => {
   if (config.useCache) {
     const cachedResponse = cache.get(cacheKey);
     // use the cached response response if it exists
@@ -35,7 +42,7 @@ const fetchFromCacheOrAoC = async (cacheKey, uri, options, config, cache) => {
   return response.text();
 };
 
-async function getInput(config, cache) {
+export async function getInput(config: Config, cache: Cache) {
   const { year, day, token } = config;
   const uri = `${HOST_URI}/${year}/day/${day}/input`;
   const options = {
@@ -99,7 +106,16 @@ async function getInput(config, cache) {
   return textResponse;
 }
 
-const postAnswer = async ({ part, answer }, config, cache) => {
+type Params = {
+  part: Result;
+  answer: Result;
+};
+
+export const postAnswer = async (
+  { part, answer }: Params,
+  config: Config,
+  cache: Cache
+) => {
   const { year, day, token } = config;
   const uri = `${HOST_URI}/${year}/day/${day}/answer`;
   const options = {
@@ -111,8 +127,8 @@ const postAnswer = async ({ part, answer }, config, cache) => {
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     body: new URLSearchParams({
-      level: part,
-      answer
+      level: `${part}`,
+      answer: `${answer}`
     })
   };
   const cacheKey = JSON.stringify({
@@ -126,6 +142,7 @@ const postAnswer = async ({ part, answer }, config, cache) => {
   const textResponse = await fetchFromCacheOrAoC(
     cacheKey,
     uri,
+    // @ts-expect-error for some reason TS thinks that the body type is incompatible
     options,
     config,
     cache
@@ -172,9 +189,4 @@ const postAnswer = async ({ part, answer }, config, cache) => {
   return Promise.reject(
     new Error('Unknown response from AoC. Are you authenticated correctly?')
   );
-};
-
-module.exports = {
-  getInput,
-  postAnswer
 };

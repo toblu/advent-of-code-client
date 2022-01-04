@@ -1,11 +1,19 @@
-const { getYear } = require('date-fns');
-const Cache = require('cache-conf');
-const emojic = require('emojic');
-const { getInput, postAnswer } = require('./util/api');
-const logger = require('./util/logger');
-const waitForUserInput = require('./util/waitForUserInput');
+import { getYear } from 'date-fns';
+import CacheConf from 'cache-conf';
+import emojic from 'emojic';
+import { getInput, postAnswer } from './util/api';
+import logger from './util/logger';
+import waitForUserInput from './util/waitForUserInput';
+import type {
+  CacheKeyParams,
+  Cache,
+  Config,
+  PartFn,
+  Result,
+  TransformFn
+} from './AocClient.types';
 
-const getCacheKey = ({ year, day, token, part }) =>
+const getCacheKey = ({ year, day, token, part }: CacheKeyParams) =>
   `${year}:${day}:${token}:${part}`;
 
 /**
@@ -13,10 +21,13 @@ const getCacheKey = ({ year, day, token, part }) =>
  * Each instance of the class corresponds to a puzzle for a specific day and year based on the configuration.
  */
 class AocClient {
+  private config: Config;
+  private cache: Cache;
+  private transform: TransformFn;
   /**
    * @param {object} config
    */
-  constructor({ year, day, token, useCache = true, debug = false }) {
+  constructor({ year, day, token, useCache = true, debug = false }: Config) {
     if (
       !year ||
       Number.isNaN(year) ||
@@ -52,16 +63,16 @@ class AocClient {
     if (debug) {
       globalThis.aocDebug = true;
     }
-    this.cache = new Cache();
+    this.cache = new CacheConf();
     this.transform = null;
   }
 
-  _hasCompletedPart(part) {
+  private _hasCompletedPart(part: number) {
     const cacheKey = getCacheKey({ ...this.config, part });
     return this.cache.get(cacheKey) === true;
   }
 
-  _markCompletedPart(part) {
+  private _markCompletedPart(part: number) {
     const cacheKey = getCacheKey({ ...this.config, part });
     this.cache.set(cacheKey, true);
   }
@@ -80,10 +91,10 @@ class AocClient {
   /**
    * Submit puzzle answer for a specific part of the puzzle. If the part of the puzzle has already been completed, it will not be submitted again.
    * @param {number} part - the part of the puzzle that the answer is for (should be 1 or 2).
-   * @param {any} answer - the answer to the puzzle.
+   * @param {number | string} answer - the answer to the puzzle.
    * @return {boolean} true if the answer was correct, false otherwise.
    */
-  async submit(part, answer) {
+  async submit(part: number, answer: Result): Promise<boolean> {
     if (part !== 1 && part !== 2) {
       return Promise.reject(new Error('Part must be either 1 or 2'));
     }
@@ -127,7 +138,10 @@ class AocClient {
    * @param {array} parts - an array with length of either 1 or 2. Each element in the array must be a function that takes the puzzle input and returns the calculated puzzle answer. The first element in the array corresponds to part 1 of the puzzle, and the second element (if specified) corresponds to part 2 of the puzzle.
    * @param {boolean} autoSubmit - when true the answers for each part will be submitted to Advent Of Code automatically, otherwise each answer will require confirmation before it will be submitted.
    */
-  async run(parts, autoSubmit = false) {
+  async run(
+    parts: [part1: PartFn] | [part1: PartFn, part2: PartFn],
+    autoSubmit = false
+  ) {
     if (!parts || !parts.length || parts.length > 2) {
       return Promise.reject(
         new Error('Parts must be an array with length between 1 and 2')
@@ -165,7 +179,7 @@ class AocClient {
     }
 
     const input = await this.getInput();
-    const results = [undefined, undefined];
+    const results: Array<Result> = [undefined, undefined];
     if (!this._hasCompletedPart(1)) {
       results[0] = parts[0](input);
     } else {
@@ -202,11 +216,11 @@ class AocClient {
     return Promise.resolve();
   }
 
-  setInputTransform(transform) {
+  setInputTransform(transform: TransformFn) {
     if (typeof transform !== 'function')
       throw new Error('transform must be a function');
     this.transform = transform;
   }
 }
 
-module.exports = AocClient;
+export default AocClient;

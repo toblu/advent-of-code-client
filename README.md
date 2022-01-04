@@ -13,7 +13,7 @@ npm i --save advent-of-code-client
 Initializing the client:
 
 ```javascript
-const { AocClient } = require('advent-of-code-client');
+import { AocClient } from 'advent-of-code-client';
 
 const client = new AocClient({
   year: 2020, // the year of the challenge
@@ -31,7 +31,7 @@ const input = await client.getInput();
 Submitting answer to a part of the puzzle, in this example part 1:
 
 ```javascript
-const success = await client.submit(1, myAnswer);
+const success = await client.submit(1, 'myAnswer');
 ```
 
 Automatically running the puzzle parts and submitting the answers:
@@ -56,7 +56,7 @@ Transforming inputs before they are returned from `.getInput()`. This can be esp
 For convenience there are a couple of pre-defined transform functions for commonly used transformations (i.e. splitting data by lines). The pre-defined transform functions are exported as `transforms`:
 
 ```javascript
-const { transforms } = require('advent-of-code-client');
+import { transforms } from 'advent-of-code-client';
 
 client.setInputTransform(transforms.lines);
 ```

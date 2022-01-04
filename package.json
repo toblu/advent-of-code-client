@@ -2,9 +2,12 @@
   "name": "advent-of-code-client",
   "version": "0.1.4",
   "description": "A NodeJS client for fetching inputs, running puzzle challenges and submitting answers to Advent Of Code directly from your JavaScript code.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "prepublish": "tsc"
   },
   "repository": {
     "type": "git",
@@ -24,11 +27,14 @@
   },
   "homepage": "https://github.com/toblu/advent-of-code-client#readme",
   "devDependencies": {
+    "@types/node": "^17.0.7",
+    "@types/node-fetch": "^2.5.12",
     "eslint": "^7.15.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-import": "^2.22.1",
-    "prettier": "2.2.1"
+    "prettier": "2.2.1",
+    "typescript": "^4.5.4"
   },
   "dependencies": {
     "cache-conf": "^0.6.0",
