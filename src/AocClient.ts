@@ -10,24 +10,33 @@ import type {
   Config,
   PartFn,
   Result,
-  TransformFn
+  TransformFn,
+  ClientOptions
 } from './AocClient.types';
 
 const getCacheKey = ({ year, day, token, part }: CacheKeyParams) =>
   `${year}:${day}:${token}:${part}`;
 
+const noopTransform = (input: string) => input;
 /**
  * A class that handles fetching input from and submitting answers to Advent Of Code.
  * Each instance of the class corresponds to a puzzle for a specific day and year based on the configuration.
  */
-class AocClient {
+class AocClient<TransformedInput extends any = string> {
   private config: Config;
   private cache: Cache;
-  private transform: TransformFn;
+  private transform: TransformFn<TransformedInput>;
   /**
-   * @param {object} config
+   * @param {object} options
    */
-  constructor({ year, day, token, useCache = true, debug = false }: Config) {
+  constructor({
+    year,
+    day,
+    token,
+    useCache = true,
+    debug = false,
+    inputTransform = noopTransform as TransformFn<TransformedInput>
+  }: ClientOptions<TransformedInput>) {
     if (
       !year ||
       Number.isNaN(year) ||
@@ -64,7 +73,12 @@ class AocClient {
       globalThis.aocDebug = true;
     }
     this.cache = new CacheConf();
-    this.transform = null;
+    if (typeof inputTransform !== 'function') {
+      throw new Error(
+        'Invalid inputTransform option, inputTransform must be a function'
+      );
+    }
+    this.transform = inputTransform;
   }
 
   private _hasCompletedPart(part: number) {
@@ -85,7 +99,7 @@ class AocClient {
     logger.log('Fetching input...');
     const input = await getInput(this.config, this.cache);
     const trimmedInput = input.trim();
-    return this.transform ? this.transform(trimmedInput) : trimmedInput;
+    return this.transform(trimmedInput);
   }
 
   /**
@@ -139,7 +153,9 @@ class AocClient {
    * @param {boolean} autoSubmit - when true the answers for each part will be submitted to Advent Of Code automatically, otherwise each answer will require confirmation before it will be submitted.
    */
   async run(
-    parts: [part1: PartFn] | [part1: PartFn, part2: PartFn],
+    parts:
+      | [part1: PartFn<TransformedInput>]
+      | [part1: PartFn<TransformedInput>, part2: PartFn<TransformedInput>],
     autoSubmit = false
   ) {
     if (!parts || !parts.length || parts.length > 2) {
@@ -214,12 +230,6 @@ class AocClient {
       await this.submit(2, results[1]);
     }
     return Promise.resolve();
-  }
-
-  setInputTransform(transform: TransformFn) {
-    if (typeof transform !== 'function')
-      throw new Error('transform must be a function');
-    this.transform = transform;
   }
 }
 
