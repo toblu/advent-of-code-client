@@ -23,6 +23,10 @@ export type Config = {
   debug?: boolean;
 };
 
+export type ClientOptions<TransformedInput = string> = Config & {
+  inputTransform?: TransformFn<TransformedInput>;
+};
+
 export type Cache = {
   get: (key: string, options?: { ignoreMaxAge?: boolean }) => any;
   set: (
@@ -36,8 +40,8 @@ export type Cache = {
   isExpired: (key: string) => boolean;
 };
 
-export type TransformFn = (input: string) => any;
+export type TransformFn<T> = (input: string) => T;
 
 export type Result = number | string;
 
-export type PartFn = (input: any) => Result;
+export type PartFn<T> = (input: T) => Result;

@@ -10,7 +10,7 @@ npm i --save advent-of-code-client
 
 ## How to use
 
-Initializing the client:
+**Initializing the client:**
 
 ```javascript
 import { AocClient } from 'advent-of-code-client';
@@ -22,7 +22,7 @@ const client = new AocClient({
 });
 ```
 
-Fetching the puzzle input:
+**Fetching the puzzle input:**
 
 ```javascript
 const input = await client.getInput();
@@ -51,26 +51,31 @@ const part2 = (input) => {
 await client.run([part1, part2], true);
 ```
 
-Transforming inputs before they are returned from `.getInput()`. This can be especially useful if you are running your puzzle parts automatically. When using the `.setInputTransform(transform)` method, the input to each part function will be the transformed / parsed data.
+**Transforming inputs before they are returned from `.getInput()`:**
+
+This can be especially useful if you are running your puzzle parts automatically. When using the `inputTransform` option when creating the client, the input passed to each part function will be the transformed / parsed data.
 
 For convenience there are a couple of pre-defined transform functions for commonly used transformations (i.e. splitting data by lines). The pre-defined transform functions are exported as `transforms`:
 
 ```javascript
 import { transforms } from 'advent-of-code-client';
 
-client.setInputTransform(transforms.lines);
+const client = new AocClient({
+  ... // other options
+  inputTransform: transforms.lines // automatically split the input by lines
+});
 ```
 
 You can also specify your own transform function:
 
 ```javascript
-
-const myTransform = rawData => {
-  ... // transform data
-  return transformedData;
-}
-
-client.setInputTransform(myTransform);
+const client = new AocClient({
+  ... // other options
+  inputTransform: (rawData) => {
+    ... // transform data
+    return transformedData;
+  }
+});
 ```
 
 ## Authentication
